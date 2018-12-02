@@ -26,14 +26,19 @@ int get_token(char symbol){
 int cal(int num1, int num2, char f){
     switch (f){
         case '+':
+            printf("%d+%d=%d\n", num1, num2, num1+num2);
             return num1+num2;
         case '-':
+            printf("%d-%d=%d\n", num1, num2, num1-num2);
             return num1-num2;
         case '*':
+            printf("%d*%d=%d\n", num1, num2, num1*num2);
             return num1*num2;
         case '/':
+            printf("%d/%d=%d\n", num1, num2, num1/num2);
             return num1/num2;
         case '%':
+            printf("%d %d=%d\n", num1, num2, num1%num2);
             return num1%num2;
     }
     return -1;
@@ -44,8 +49,8 @@ void proceed(char *c, int *nums, char *fuhao, int *n_top, int *f_top, int *flag)
     // 若当前符号优先级比栈顶符号优先级高，则入栈
     // 若优先级较低，则逐个弹出所有符号栈里的符号，用数字栈顶的两个数字来运算，并把运算结果放入数字栈
     // ( ) + - * / % e
-    int isp[] = {0, -1, 12, 12, 13, 13, 13, 0};
-    int icp[] = {20, -1, 12, 12, 13, 13, 13, 0};
+    int isp[] = {1, -1, 12, 12, 13, 13, 13, -1};
+    int icp[] = {20, -1, 12, 12, 13, 13, 13, -1};
     if((*c)>='0' && (*c)<='9'){
         if((*flag)!=1){
             nums[++(*n_top)] = atoi(c);
@@ -53,15 +58,24 @@ void proceed(char *c, int *nums, char *fuhao, int *n_top, int *f_top, int *flag)
         }
     }
     else{
+        if((*f_top)!=-1){        
+        int p1 = icp[get_token(*c)];
+        int p2 = isp[get_token(fuhao[(*f_top)])];
+        // printf("\n%d, %d\n", p1, p2);
+        }
         if((*f_top)==-1)
         fuhao[++(*f_top)] = *c;
-        else if(isp[get_token(*c)] > icp[get_token(fuhao[(*f_top)])]){
-        fuhao[++(*f_top)] = *c;
+        else if(icp[get_token(*c)] > isp[get_token(fuhao[(*f_top)])]){
+
+            fuhao[++(*f_top)] = *c;
         }
         else{
             // 把之前的符号全部弹出计算
             for(int i = (*f_top); i>=0; i--){
-                if (fuhao[i] == '(')continue;
+                if (fuhao[i] == '('){
+                        *f_top = *f_top - 1;
+                        break;
+                    }
                 int num2 = nums[(*n_top)--], num1 = nums[(*n_top)--];
                 int res = cal(num1, num2, fuhao[(*f_top)--]);
                 // 把计算结果放入数字栈
